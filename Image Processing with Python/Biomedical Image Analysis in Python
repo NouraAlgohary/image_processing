@@ -1,0 +1,141 @@
+                                                       ************       Exploration       ************
+
+_____________________________Load images______________________________
+
+# Import ImageIO
+import imageio
+
+# Load "chest-220.dcm"
+im = imageio.imread("chest-220.dcm")
+
+# Print image attributes
+print('Image type:', type(im))
+print('Shape of image array:', im.shape)
+
+______________________________Metadata________________________________
+
+# Import ImageIO
+import imageio
+im = imageio.imread('chest-220.dcm')
+
+# Print the available metadata fields
+print(im.meta.keys())
+
+_____________________________Plot images______________________________
+
+1_________________
+# Import ImageIO and PyPlot 
+import imageio
+import matplotlib.pyplot as plt
+
+# Read in "chest-220.dcm"
+im = imageio.imread("chest-220.dcm")
+
+2_________________
+# Draw the image in grayscale
+plt.imshow(im, cmap='gray')
+
+# Render the image
+plt.show()
+
+3_________________
+# Draw the image with greater contrast
+plt.imshow(im, cmap='gray', vmin=-200, vmax=200)
+
+# Render the image
+plt.show()
+
+4_________________
+# Remove axis ticks and labels
+plt.axis('off')
+
+# Render the image
+plt.show()
+
+____________________________Stack images______________________________
+
+# Import ImageIO and NumPy
+import imageio
+import numpy as np
+
+# Read in each 2D image
+im1 = imageio.imread('chest-220.dcm')
+im2 = imageio.imread('chest-221.dcm')
+im3 = imageio.imread('chest-222.dcm')
+
+# Stack images into a volume
+vol = np.stack([im1,im2,im3],axis=0)
+print('Volume dimensions:', vol.shape)
+
+_____________________________Load volumes_____________________________
+
+# Import ImageIO
+import imageio
+
+# Load the "tcia-chest-ct" directory
+vol = imageio.volread("tcia-chest-ct" )
+
+# Print image attributes
+print('Available metadata:', vol.meta.keys())
+print('Shape of image array:', vol.shape)
+
+____________________________Field of view_____________________________
+
+x,y,z = vol.shape
+v1, v2, v3 = vol.meta['sampling']
+x*v1, y*v2, z*v3
+
+__________________________Generate subplots___________________________
+
+# Import PyPlot
+import matplotlib.pyplot as plt
+
+# Initialize figure and axes grid
+fig, axes = plt.subplots(2,1)
+
+# Draw an image on each subplot
+axes[0].imshow(im1, cmap='gray')
+axes[1].imshow(im2, cmap='gray')
+
+# Remove ticks/labels and render
+axes[0].axis('off')
+axes[1].axis('off')
+plt.show()
+
+___________________________Slice 3D images____________________________
+
+# Plot the images on a subplots array 
+fig, axes = plt.subplots(1,4)
+
+# Loop through subplots and draw image
+for ii in range(4):
+    im = vol[ii*40,:,:]
+    axes[ii].imshow(im, cmap='gray')
+    axes[ii].axis('off')
+    
+# Render the figure
+plt.show()
+
+__________________________Plot other views____________________________
+
+# Select frame from "vol"
+im1 = vol[:, 256, :]
+im2 = vol[:,:,256]
+
+# Compute aspect ratios
+d0, d1, d2 = vol.meta['sampling']
+asp1 = d0 / d2
+asp2 = d0/d2
+
+# Plot the images on a subplots array 
+fig, axes = plt.subplots(nrows=2, ncols=1)
+axes[0].imshow(im1, cmap='gray', aspect=asp1)
+axes[1].imshow(im2, cmap='gray', aspect=asp2)
+
+plt.show()
+
+                                                     ************       Masks and Filters       ************
+                                                        ************       Measurement       ************
+                                                      ************       Image Comparison       ************
+
+
