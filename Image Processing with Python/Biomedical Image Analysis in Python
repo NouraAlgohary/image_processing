@@ -357,4 +357,153 @@ plt.plot(hist2 / hist2.sum(), label='All labeled pixels')
 plt.plot(hist3 / hist3.sum(), label='Left ventricle')
 format_and_render_plot()
 
+__________________________Calculate volume____________________________
+
+d1, d2, d3 = vol.meta['sampling']
+dvoxels = d1 * d2 * d3
+nvoxels = ndi.sum(1, labels, index=1)
+volume = nvoxels * dvoxels
+volume
+
+________________________Calculate distance____________________________
+
+# Calculate left ventricle distances
+lv = np.where(labels == 1, 1, 0)
+dists = ndi.distance_transform_edt(lv, sampling=vol.meta['sampling'])
+
+# Report on distances
+print('Max distance (mm):', ndi.maximum(dists))
+print('Max location:', ndi.maximum_position(dists))
+
+# Plot overlay of distances
+overlay = np.where(dists[5] > 0, dists[5], np.nan) 
+plt.imshow(overlay, cmap='hot')
+format_and_render_plot()
+
+______________________Pinpoint center of mass_________________________
+
+# Extract centers of mass for objects 1 and 2
+coms = ndi.center_of_mass(vol,labels, index=[1,2])
+print('Label 1 center:', coms[0])
+print('Label 2 center:', coms[1])
+
+# Add marks to plot
+for c0, c1, c2 in coms:
+    plt.scatter(c2, c1, s=100, marker='o')
+plt.show()
+
+_____________________Summarize the time series________________________
+
+# Create an empty time series
+ts = np.zeros(20)
+
+# Calculate volume at each voxel
+d0, d1, d2, d3 = vol_ts.meta['sampling']
+dvoxel = d1 * d2 * d3
+
+# Loop over the labeled arrays
+for t in range(20):
+    nvoxels = ndi.sum(1, labels[t], index=1)
+    ts[t] = nvoxels * dvoxel
+
+# Plot the data
+plt.plot(ts)
+format_and_render_plot()
+
+_____________________Measure ejection fraction________________________
+
+1_________________
+# Get index of max and min volumes
+tmax = np.argmax(ts)
+tmin = np.argmin(ts)
+
+# Plot the largest and smallest volumes
+fig, axes = plt.subplots(2,1)
+axes[0].imshow(vol_ts[tmax, 4], vmax=160)
+axes[1].imshow(vol_ts[tmin, 4], vmax=160)
+format_and_render_plots()
+
+2_________________
+# Calculate ejection fraction
+ej_vol = ts.max() - ts.min()
+ej_frac = (ts.max() - ts.min()) / ts.max()
+print('Est. ejection volume (mm^3):', ej_vol)
+print('Est. ejection fraction:', ej_frac)
+
                                                       ************       Image Comparison       ************
+
+_____________________________Translations_____________________________
+
+1_________________
+# Find image center of mass
+com = ndi.center_of_mass(im)
+
+# Calculate amount of shift needed
+d0 = 128 - com[0]
+d1 = 128 - com[1]
+
+# Translate the brain towards the center
+xfm = ndi.shift(im, shift=[d0,d1])
+
+2_________________
+# Find image center of mass
+com = ndi.center_of_mass(im)
+
+# Calculate amount of shift needed
+d0 = 128 - com[0]
+d1 = 128 - com[1]
+
+# Translate the brain towards the center
+xfm = ndi.shift(im, shift=(d0, d1))
+
+# Plot the original and adjusted images
+fig, axes = plt.subplots(2,1)
+axes[0].imshow(im)
+axes[1].imshow(xfm)
+format_and_render_plot()
+
+_____________________________Rotations________________________________
+
+# Shift the image towards the center
+xfm = ndi.shift(im, shift=(-20,-20))
+
+# Rotate the shifted image
+xfm = ndi.rotate(xfm, angle=-30, reshape=False)
+
+# Plot the original and rotated images
+fig, axes = plt.subplots(2, 1)
+axes[0].imshow(im)
+axes[1].imshow(xfm)
+format_and_render_plot()
+
+______________________________Resampling______________________________
+
+# Center and level image
+xfm = ndi.shift(im, shift=(-20,-20))
+xfm = ndi.rotate(xfm, angle=-35, reshape=False)
+
+# Resample image
+im_dn = ndi.zoom(xfm, zoom=0.25)
+im_up = ndi.zoom(xfm, zoom=4)
+
+# Plot the images
+fig, axes = plt.subplots(2, 1)
+axes[0].imshow(im_dn)
+axes[1].imshow(im_up)
+format_and_render_plot()
+
+_____________________________Interpolation____________________________
+
+# Upsample "im" by a factor of 4
+up0 = ndi.zoom(im, zoom=4, order=0)
+up5 = ndi.zoom(im, zoom=4, order=5)
+
+# Print original and new shape
+print('Original shape:',  im.shape)
+print('Upsampled shape:', up0.shape)
+
+# Plot close-ups of the new images
+fig, axes = plt.subplots(1, 2)
+axes[0].imshow(up0[128:256, 128:256])
+axes[1].imshow(up5[128:256, 128:256])
+format_and_render_plots()
