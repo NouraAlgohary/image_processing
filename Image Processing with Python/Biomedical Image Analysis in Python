@@ -531,3 +531,54 @@ format_and_render_plot()
 mean_abs_err = np.mean(np.abs(im1 - im2))
 print('MAE:', mean_abs_err)
 
+__________________Identifying potential confounds_____________________
+
+1_________________
+# Print random sample of rows
+print(df.sample(3))
+
+2_________________
+# Print prevalence of Alzheimer's Disease
+print(df.alzheimers.value_counts())
+
+3_________________
+# Print a correlation table
+print(df.corr())
+
+_____________________Testing group differences________________________
+
+1_________________
+# Import independent two-sample t-test
+from scipy.stats import ttest_ind
+
+2_________________
+# Select data from "alzheimers" and "typical" groups
+brain_alz = df.loc[df.alzheimers == True, 'brain_vol']
+brain_typ = df.loc[df.alzheimers == False, 'brain_vol']
+
+3_________________
+# Perform t-test of "alz" > "typ"
+results = ttest_ind(brain_alz, brain_typ)
+print('t = ', results.statistic)
+print('p = ', results.pvalue)
+
+4_________________
+# Show boxplot of brain_vol differences
+df.boxplot(column='brain_vol', by='alzheimers')
+plt.show()
+
+_________________________ormalizing metrics___________________________
+
+1_________________
+# Import independent two-sample t-test
+from scipy.stats import ttest_ind
+
+# Divide `df.brain_vol` by `df.skull_vol`
+df['adj_brain_vol'] = df.brain_vol / df.skull_vol
+
+# Select brain measures by Alzheimers group
+brain_alz = df.loc[df.alzheimers == True, 'adj_brain_vol']
+brain_typ = df.loc[df.alzheimers == False, 'adj_brain_vol']
+
+# Evaluate null hypothesis
+results = ttest_ind(brain_alz, brain_typ)
