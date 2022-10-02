@@ -1,0 +1,48 @@
+                                             ************       Image Processing With Neural Networks       ************
+_____________________Images as data: visualizations________________________
+
+# Import matplotlib
+import matplotlib.pyplot as plt
+
+# Load the image
+data = plt.imread('bricks.png')
+
+# Display the image
+plt.imshow(data)
+plt.show()
+
+______________Using one-hot encoding to represent images___________________
+
+# The number of image categories
+n_categories = 3
+
+# The unique values of categories in the data
+categories = np.array(["shirt", "dress", "shoe"])
+
+# Initialize ohe_labels as all zeros
+ohe_labels = np.zeros((len(labels), n_categories))
+
+# Loop over the labels
+for ii in range(len(labels)):
+    # Find the location of this label in the categories variable
+    jj = np.where(categories == labels[ii])
+    # Set the corresponding zero to one
+    ohe_labels[ii, jj] = 1
+
+________________________Evaluating a classifier____________________________
+
+# Calculate the number of correct predictions
+number_correct = np.sum(np.multiply(test_labels, predictions))
+print(number_correct)
+
+# Calculate the proportion of correct predictions
+proportion_correct = number_correct/len(predictions)
+print(proportion_correct)
+
+________________________Evaluating a classifier____________________________
+________________________Evaluating a classifier____________________________
+
+
+                                                  ************       Using Convolutions       ************
+                                                       ************       Going Deeper       ************
+                                     ************       Understanding and Improving Deep Convolutional Networks       ************
