@@ -1,0 +1,193 @@
+                                             ************       Image Processing With Neural Networks       ************
+_____________________Images as data: visualizations________________________
+
+# Import matplotlib
+import matplotlib.pyplot as plt
+
+# Load the image
+data = plt.imread('bricks.png')
+
+# Display the image
+plt.imshow(data)
+plt.show()
+
+______________Using one-hot encoding to represent images___________________
+
+# The number of image categories
+n_categories = 3
+
+# The unique values of categories in the data
+categories = np.array(["shirt", "dress", "shoe"])
+
+# Initialize ohe_labels as all zeros
+ohe_labels = np.zeros((len(labels), n_categories))
+
+# Loop over the labels
+for ii in range(len(labels)):
+    # Find the location of this label in the categories variable
+    jj = np.where(categories == labels[ii])
+    # Set the corresponding zero to one
+    ohe_labels[ii, jj] = 1
+
+________________________Evaluating a classifier____________________________
+
+# Calculate the number of correct predictions
+number_correct = np.sum(np.multiply(test_labels, predictions))
+print(number_correct)
+
+# Calculate the proportion of correct predictions
+proportion_correct = number_correct/len(predictions)
+print(proportion_correct)
+
+________________________Build a neural network_____________________________
+
+# Imports components from Keras
+from keras.models import Sequential
+from keras.layers import Dense
+
+# Initializes a sequential model
+model = Sequential()
+
+# First layer
+model.add(Dense(10, activation='relu', input_shape=(784,)))
+
+# Second layer
+model.add(Dense(10, activation='relu'))
+
+# Output layer
+model.add(Dense(3, activation='softmax'))
+
+________________________Compile a neural network___________________________
+
+# Compile the model
+model.compile(optimizer='adam', 
+           loss='categorical_crossentropy', 
+           metrics=['accuracy'])
+           
+_____________Fitting a neural network model to clothing data_______________
+
+# Reshape the data to two-dimensional array
+train_data = train_data.reshape((50, 784))
+
+# Fit the model
+model.fit(train_data, train_labels, validation_split=0.2, epochs=3)
+
+____________Cross-validation for neural network evaluation_________________
+
+# Reshape test data
+test_data = test_data.reshape((10, 784))
+
+# Evaluate the model
+model.evaluate(test_data, test_labels)
+
+
+                                                  ************       Using Convolutions       ************
+______________________One dimensional convolutions_________________________
+
+array = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
+kernel = np.array([1, -1, 0])
+conv = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+# Output array
+for ii in range(8):
+    conv[ii] = (kernel * array[ii:ii+3]).sum()
+
+# Print conv
+print(conv)
+
+___________________________Image convolutions______________________________
+
+kernel = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+result = np.zeros(im.shape)
+
+# Output array
+for ii in range(im.shape[0] - 3):
+    for jj in range(im.shape[1] - 3):
+        result[ii, jj] = (im[ii:ii+3, jj:jj+3] * kernel).sum()
+
+# Print result
+print(result)
+
+___________________Defining image convolution kernels______________________
+
+1_________________
+kernel = np.array([[-1, -1, -1], 
+                   [1, 1, 1],
+                   [-1, -1, -1]])
+                   
+2_________________
+kernel = np.array([[-1, -1, -1], 
+                   [-1, 1, -1],
+                   [-1, -1, -1]])
+                   
+3_________________
+kernel = np.array([[1, 1, 1], 
+                   [1, -1, 1],
+                   [1, 1, 1]])
+                   
+_____________Convolutional network for image classification________________
+
+# Import the necessary components from Keras
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Flatten
+
+# Initialize the model object
+model = Sequential()
+
+# Add a convolutional layer
+model.add(Conv2D(10, kernel_size=3, activation='relu', 
+               input_shape=(img_rows, img_cols, 1)))
+
+# Flatten the output of the convolutional layer
+model.add(Flatten())
+# Add an output layer for the 3 categories
+model.add(Dense(3, activation='softmax'))
+
+_______________Training a CNN to classify clothing types___________________
+
+# Compile the model 
+model.compile(optimizer='adam', 
+              loss='categorical_crossentropy', 
+              metrics=['accuracy'])
+
+# Fit the model on a training set
+model.fit(train_data, train_labels, 
+          validation_split=0.2, 
+          epochs=3, batch_size=10)
+          
+____________________Evaluating a CNN with test data________________________
+
+# Evaluate the model on separate test data
+model.evaluate(test_data, test_labels, batch_size=10)
+
+__________________________Add padding to a CNN_____________________________
+
+# Initialize the model
+model = Sequential()
+
+# Add the convolutional layer
+model.add(Conv2D(10, kernel_size=3, activation='relu', 
+                 input_shape=(img_rows, img_cols, 1), 
+                 padding='same'))
+
+# Feed into output layer
+model.add(Flatten())
+model.add(Dense(3, activation='softmax'))
+
+_________________Add strides to a convolutional network____________________
+
+# Initialize the model
+model = Sequential()
+
+# Add the convolutional layer
+model.add(Conv2D(10, kernel_size=3, activation='relu', 
+              input_shape=(img_rows, img_cols, 1), 
+              strides = 2))
+
+# Feed into output layer
+model.add(Flatten())
+model.add(Dense(3, activation='softmax'))
+
+
+                                                       ************       Going Deeper       ************
+                                     ************       Understanding and Improving Deep Convolutional Networks       ************
